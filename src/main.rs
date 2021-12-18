@@ -5,13 +5,15 @@ use uuid::Uuid;
 #[derive(Deserialize, Serialize)]
 struct Novel {
     id: Uuid,
+    title: String,
+    // TODO: add Page struct with lines
     pages: Vec<Vec<String>>,
 }
 
 impl Novel {
-    fn new(pages: Vec<Vec<String>>) -> Novel {
+    fn new(title: String, pages: Vec<Vec<String>>) -> Novel {
         let id = Uuid::new_v4();
-        Novel { id, pages }
+        Novel { title, id, pages }
     }
 }
 
@@ -26,16 +28,19 @@ fn run() {
         .collect();
 
     let pages: Vec<Vec<String>> = lines.chunks(20).map(|chunk| chunk.to_vec()).collect();
-    let result = serde_json::to_string(&Novel::new(pages));
+    let novel = Novel::new(filename, pages);
+    let result = serde_json::to_string(&novel);
     match result {
         Ok(data) => {
             println!("{}", data);
-            let path = format!("./novels/json/{}.json", filename);
+            let path = format!("./novels/json/{}.json", novel.title);
+            fs::remove_dir_all("./novels/json");
             fs::create_dir_all("./novels/json").expect("could not create the folder");
             fs::write(path, &data).expect("Unable to write file");
 
             // TODO: move to S3 after
-            let path_server = format!("../server/novels/json/{}.json", filename);
+            let path_server = format!("../server/novels/json/{}.json", novel.id);
+            fs::remove_dir_all("../server/novels/json");
             fs::create_dir_all("../server/novels/json").expect("could not create the folder");
             fs::write(path_server, data).expect("Unable to write file");
         }
