@@ -32,7 +32,12 @@ fn run() {
             println!("{}", data);
             let path = format!("./novels/json/{}.json", filename);
             fs::create_dir_all("./novels/json").expect("could not create the folder");
-            fs::write(path, data).expect("Unable to write file")
+            fs::write(path, &data).expect("Unable to write file");
+
+            // TODO: move to S3 after
+            let path_server = format!("../server/novels/json/{}.json", filename);
+            fs::create_dir_all("../server/novels/json").expect("could not create the folder");
+            fs::write(path_server, data).expect("Unable to write file");
         }
         Err(err) => println!("{}", err),
     }
