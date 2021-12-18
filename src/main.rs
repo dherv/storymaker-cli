@@ -1,14 +1,17 @@
 use serde::{Deserialize, Serialize};
 use std::fs;
+use uuid::Uuid;
 
 #[derive(Deserialize, Serialize)]
 struct Novel {
+    id: Uuid,
     pages: Vec<Vec<String>>,
 }
 
 impl Novel {
     fn new(pages: Vec<Vec<String>>) -> Novel {
-        Novel { pages }
+        let id = Uuid::new_v4();
+        Novel { id, pages }
     }
 }
 
